@@ -19,6 +19,10 @@ SK9822 LEDs - I'm using 60 per M but any configuration should be ok.
 
 PSU - The SK9822 LEDs are 0.06amp per segment (each segment has 3 leds @ 0.02amp).  So 70 segments is 70 x 0.06 = 4.2amp.
 
+Serial Adapter - FTDI-FT232RL.
+
+Pro Micro - ATMEGA32U4 5V 16MHz.
+
 **Ensure you use the correct fuse ratings on the LED strips!**
 
 Multiple strips can be joined together using the data & clock channels, then feed each strip with it's own power.

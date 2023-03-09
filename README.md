@@ -1,27 +1,39 @@
 # StageKitPied
-Rock Band Stage Kit Pied is an interface that sits between an xbox360 and the Stage Kit to read the lighting cues, which it then uses to power an LED array.
+Rock Band Stage Kit Pied is a highly configurable interface that runs on the Raspberry Pi platform.  It sits between an xbox 360 and the Rock Band Stage Kit (released by PDP) to read the lighting cues from the Harmonix games "Rock Band 2" and "Rock Band 3", which it then uses to switch on & off LEDs in a large LED strip array.
+
+## Examples of it in action
+[![Example 1](https://img.youtube.com/vi/fq0_RiIjsV8/0.jpg)](https://www.youtube.com/watch?v=fq0_RiIjsV8)  [![Example 2](https://img.youtube.com/vi/q-61C9YkRUw/0.jpg)](https://www.youtube.com/watch?v=q-61C9YkRUw)
+
+# WARNING
+**You attempt any of this at your own risk.  Incorrectly wiring and powering electronics can result in fires or even worse.**
+
+**You have been warned!**
 
 ## Build the LED Array
 ###### Hardware
+Rock Band Stage Kit - Released by PDP.  Just the light POD on it's own will do.
+
 Raspberry Pi - Version 1 should be enough, default Raspbian OS.
 
-SK2988 - I'm using 60 per M but any configuration should be ok.
+SK9822 LEDs - I'm using 60 per M but any configuration should be ok.
 
-PSU - SK9822 is 0.06amp per segment (each segment has 3 leds @ 0.02amp).  So 70 segments is 70 x 0.06 = 4.2amp.
+PSU - The SK9822 LEDs are 0.06amp per segment (each segment has 3 leds @ 0.02amp).  So 70 segments is 70 x 0.06 = 4.2amp.
 
-Ensure you use the correct fuse ratings on the LED strips!
+**Ensure you use the correct fuse ratings on the LED strips!**
 
 Multiple strips can be joined together using the data & clock channels, then feed each strip with it's own power.
 
 Example, I use 4 strips.  Each strip has it's own fuse and PSU connection.
  - 2 strips x 70 segments = 2 x 4.2amp = 5 amp fuses.
  - 2 strips x 40 segments = 2 x 2.4amp = 3 amp fuses.
+ 
+**Ensure you use correct AWG rated wire for your power requirements.**
 
 ## Build the adapter
 ###### Hardware
 Left: Serial Adapter = FTDI-FT232RL     Right: Pro Micro = ATMEGA32U4 5V 16MHz.
 
-![FTDI-FT232RL](https://user-images.githubusercontent.com/127441225/224138326-7562e701-adcd-4776-a003-dd04618f61b9.PNG)   ![ProMicro-ATMEGA32U4](https://user-images.githubusercontent.com/127441225/224138343-69b9a5ba-e82e-4e15-a11f-e3460c5fc5dc.PNG)
+![FTDI-FT232RL](https://user-images.githubusercontent.com/127441225/224138326-7562e701-adcd-4776-a003-dd04618f61b9.PNG)  ![ProMicro-ATMEGA32U4](https://user-images.githubusercontent.com/127441225/224138343-69b9a5ba-e82e-4e15-a11f-e3460c5fc5dc.PNG)
 
 If selectable voltage, then ensure the jumper is set to 5V (Green box in pic)
 
@@ -50,6 +62,11 @@ Either compile the firmware yourself, or use this compiled firmware file found i
 - Follow the instructions to load the firmware onto the Pro Micro.
 
 ## Setting up the StageKitPied software
+###### Installing the software
+Either compile from the source or copy the 'skp' & ini files from the 'StageKitPied' folder.
+
+Place them into any folder you want to use on the Raspberry Pi, just ensure the ini files are in the same directory as the program.
+
 ###### Edit the lights.ini file
 In the [LEDS] section
  - Enter in the amount of LEDS you have in the LED_AMOUNT=xxx

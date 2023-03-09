@@ -1,0 +1,5 @@
+Adapter FW for atmega32u4
+Based on the excellent GIMX project
+
+Basis was X360 controller, updated to meet specifications of the StageKit.  
+Byte type 0xfe added for adapter type BYTE_TYPE_X360SK to make it unique.

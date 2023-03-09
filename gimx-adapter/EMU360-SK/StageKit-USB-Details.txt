@@ -1,0 +1,177 @@
+Bus 001 Device 003: ID 0e6f:0103 Logic3
+
+T:  Bus=01 Lev=02 Prnt=02 Port=03 Cnt=01 Dev#=  3 Spd=12  MxCh= 0
+D:  Ver= 2.00 Cls=ff(vend.) Sub=ff Prot=ff MxPS= 8 #Cfgs=  1
+P:  Vendor=0e6f ProdID=0103 Rev=01.01
+S:  Manufacturer=Performance Designed Products
+S:  Product=PDP Home Stage Kit
+S:  SerialNumber=12345678
+C:  #Ifs= 4 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=5d Prot=01 Driver=xpad
+I:  If#=0x1 Alt= 0 #EPs= 4 Cls=ff(vend.) Sub=5d Prot=03 Driver=(none)
+I:  If#=0x2 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=5d Prot=02 Driver=(none)
+I:  If#=0x3 Alt= 0 #EPs= 0 Cls=ff(vend.) Sub=fd Prot=13 Driver=(none)
+
+----
+Bus 001 Device 003: ID 0e6f:0103 Logic3
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               2.00
+  bDeviceClass          255 Vendor Specific Class
+  bDeviceSubClass       255 Vendor Specific Subclass
+  bDeviceProtocol       255 Vendor Specific Protocol
+  bMaxPacketSize0         8
+  idVendor           0x0e6f Logic3
+  idProduct          0x0103
+  bcdDevice            1.01
+  iManufacturer           1 Performance Designed Products
+  iProduct                2 PDP Home Stage Kit
+  iSerial                 3 12345678
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength       0x0099
+    bNumInterfaces          4
+    bConfigurationValue     1
+    iConfiguration          0
+    bmAttributes         0xa0
+      (Bus Powered)
+      Remote Wakeup
+    MaxPower              500mA
+
+# INTERFACE 1
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           2
+      bInterfaceClass       255 Vendor Specific Class
+      bInterfaceSubClass     93
+      bInterfaceProtocol      1
+      iInterface              0
+      ** UNRECOGNIZED:  11 21 10 01 09 25 81 14
+                        03 03 03 04 13 02 08 03
+                        03
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0020  1x 32 bytes
+        bInterval               4
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x02  EP 2 OUT
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0020  1x 32 bytes
+        bInterval               8
+
+# INTERFACE 2
+
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       0
+      bNumEndpoints           4
+      bInterfaceClass       255 Vendor Specific Class
+      bInterfaceSubClass     93
+      bInterfaceProtocol      3
+      iInterface              0
+      ** UNRECOGNIZED:  1b 21 00 01 01 01 83 40 
+                        01 04 20 16 85 00 00 00
+                        00 00 00 16 05 00 00 00
+                        00 00 00
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x83  EP 3 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0020  1x 32 bytes
+        bInterval               2
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x04  EP 4 OUT
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0020  1x 32 bytes
+        bInterval               4
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x85  EP 5 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0020  1x 32 bytes
+        bInterval              64
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x05  EP 5 OUT
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0020  1x 32 bytes
+        bInterval              16
+
+# INTERFACE 3
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        2
+      bAlternateSetting       0
+      bNumEndpoints           1
+      bInterfaceClass       255 Vendor Specific Class
+      bInterfaceSubClass     93
+      bInterfaceProtocol      2
+      iInterface              0
+      ** UNRECOGNIZED:  09 21 00 01 01 22 86 07 
+                        00
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x86  EP 6 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0020  1x 32 bytes
+        bInterval              16
+
+# INTERFACE 4
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        3
+      bAlternateSetting       0
+      bNumEndpoints           0
+      bInterfaceClass       255 Vendor Specific Class
+      bInterfaceSubClass    253
+      bInterfaceProtocol     19
+      iInterface              4 Xbox Security Method 3, Version 1.00, © 2005 Microsoft Corporation. All rights reserved.
+      ** UNRECOGNIZED:  06 41 00 01 01 03
+
+can't get device qualifier: Resource temporarily unavailable
+can't get debug descriptor: Resource temporarily unavailable
+Device Status:     0x0000
+  (Bus Powered)
+----

@@ -94,8 +94,8 @@ There's other settings but the other defaults should be ok for most.
 [SK_COLOURS]
  - Stores the basic led colour values for RED, GREEN, BLUE, YELLOW & STROBE.
 
-[RED_X] [GREEN_X] [BLUE_X] [YELLOW_X]
-There are 8 sections for each of these, corresponding to the 8 colour leds on the actual Stage Kit POD.
+[RED_GROUP_X] [GREEN_GROUP_X] [BLUE_GROUP_X] [YELLOW_GROUP_X]
+There are 8 sections for each of these, where X corresponds to the 8 colour leds on the actual Stage Kit POD.
  - BRIGHTNESS=xx : How bright do want these?  Values are 0 (off) to 15 (max)
  - AMOUNT=xx : The amount of leds that are in this grouping.
  - LEDS=xx,xx,xx : Comma seperated led numbers that are in this group.

@@ -19,9 +19,7 @@ SK9822 LEDs - I'm using 60 per M but any configuration should be ok.
 
 PSU - The SK9822 LEDs are 0.06amp per segment (each segment has 3 leds @ 0.02amp).  So 70 segments is 70 x 0.06 = 4.2amp.
 
-Serial Adapter - FTDI-FT232RL.
-
-Pro Micro - ATMEGA32U4 5V 16MHz.
+###### Wiring it up
 
 **Ensure you use the correct fuse ratings on the LED strips!**
 
@@ -33,6 +31,12 @@ Example, I use 4 strips.  Each strip has it's own fuse and PSU connection.
  
 **Ensure you use correct AWG rated wire for your power requirements.**
 
+Connect the SK9822...
+ - GND : Ensure it's to the Ground on the PSU, the Raspberry Pi should also use the same ground.
+ - C(lock) : SPI SCLK (GPIO 11) on the Raspberry Pi.
+ - D(ata) : SPI MOSI (GPIO 10) on the Raspberry Pi.
+ - 5V : Positive output on PSU.
+ 
 ## Build the adapter
 ###### Hardware
 Left: Serial Adapter = FTDI-FT232RL     Right: Pro Micro = ATMEGA32U4 5V 16MHz.
@@ -81,7 +85,9 @@ In the [STAGEKIT] section, you can enable pass-through to the POD for the follow
  - Stage Kit POD lights
  - Stage Kit Fog
  - Stage Kit Strobe
+ 
 If you want the POD to go dark, set those to 0 and then there's no needs to have the FOG/Strobe unit out.
+
 There's other settings but the other defaults should be ok for most.
 
 ###### Edit the leds(x).ini

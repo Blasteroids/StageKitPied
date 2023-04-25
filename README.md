@@ -1,7 +1,7 @@
 # StageKitPied
 Rock Band Stage Kit Pied is a highly configurable interface that runs on the Raspberry Pi platform.  It sits between an xbox 360 and the Rock Band Stage Kit (released by PDP) to read the lighting cues from the Harmonix games "Rock Band 2" and "Rock Band 3", which it then uses to switch on & off LEDs in a large LED strip array.
 
-UPDATE 25/04/2023 : No Stage Kit?  Well that's not a problem if you're using RB3Enhanced (https://github.com/RBEnhanced/RB3Enhanced)  To use the RB3Enhanced data please see the lights.ini section [RB3E] : Thanks go out to the RB3Enhanced devs for highlighting the relevent data they can send out over UDP.  NOTE: If using without an actual Stage Kit then there's no need to run the program as root.
+UPDATE 25/04/2023 : No Stage Kit?  Well that's not a problem if you're using RB3Enhanced (https://github.com/RBEnhanced/RB3Enhanced)  To be able to use the RB3Enhanced data please read the RB3Enhanced section at the bottom of this readme.  Thanks go out to the RB3Enhanced devs for highlighting the relevent data they can send out over UDP.
 
 ## Examples of it in action
 [![Example 1](https://img.youtube.com/vi/fq0_RiIjsV8/0.jpg)](https://www.youtube.com/watch?v=fq0_RiIjsV8)  [![Example 2](https://img.youtube.com/vi/q-61C9YkRUw/0.jpg)](https://www.youtube.com/watch?v=q-61C9YkRUw)
@@ -115,6 +115,7 @@ There are 8 sections for each of these, where X corresponds to the 8 colour leds
  - Connect the Stage Kit light POD to the Raspberry Pi.
  - Run the Stage Kit Pied program with the command
    > sudo ./skp
+ Note: root is required to access the USB PDP Stage Kit device.
 
 ## Notes
 The StageKitPied program needs root access to be able to use the USB ports.
@@ -132,3 +133,21 @@ The reason for all the different led INI files was due to an earlier version tha
   The StageKitPied program will generate warnings from the serial adapter, these can be surpressed in the lights.ini.
   
   The StageKitPied program will generate warnings from the USB connection, these are very infrequent & can be ignored.
+
+## RB3Enhanced
+  To run with RB3Enhanced, then a PDP Stage Kit is not required and the above adapter is also not required.
+  Create the LED Array as mentioned above.
+  Edit the lights.ini to enable RB3E mode.
+   [RB3E]
+    - ENABLED=1 : Set this to 1 to make the program listen for the RB3Enhanced data stream.
+    - SOURCE_IP=0.0.0.0 : Leave this as 0.0.0.0 to listen out for any IP on your, or set it to the IP of the X360.
+    - LISTENING_PORT=21070 : Default port that RB3Enhanced will send to. 
+  Edit the RB3Enhanced rb3.ini section
+   [Events]
+    - EnableEvents = true : Set this to true for events to be sent over the network.
+    - BroadcastTarget = 255.255.255.255 : This is broadcast to all IP on your network.  If you know your raspberry pi IP then you can set this here.
+    
+  Ensure that all the StageKitPied ini files are in the same folder as the skp program and then run it
+    > ./skp
+  Note: Root is not required.
+  

@@ -136,18 +136,30 @@ The reason for all the different led INI files was due to an earlier version tha
 
 ## RB3Enhanced
   To run with RB3Enhanced, then a PDP Stage Kit is not required and the above adapter is also not required.
+  
   Create the LED Array as mentioned above.
+  
   Edit the lights.ini to enable RB3E mode.
+  
    [RB3E]
+   
     - ENABLED=1 : Set this to 1 to make the program listen for the RB3Enhanced data stream.
+    
     - SOURCE_IP=0.0.0.0 : Leave this as 0.0.0.0 to listen out for any IP on your, or set it to the IP of the X360.
+    
     - LISTENING_PORT=21070 : Default port that RB3Enhanced will send to. 
+    
   Edit the RB3Enhanced rb3.ini section
+  
    [Events]
+   
     - EnableEvents = true : Set this to true for events to be sent over the network.
+    
     - BroadcastTarget = 255.255.255.255 : This is broadcast to all IP on your network.  If you know your raspberry pi IP then you can set this here.
     
   Ensure that all the StageKitPied ini files are in the same folder as the skp program and then run it
+  
     > ./skp
+    
   Note: Root is not required.
   

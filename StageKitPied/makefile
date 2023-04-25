@@ -9,6 +9,9 @@ HELPERS_OBJ_FILES     := $(patsubst $(HELPERS_SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(HE
 LEDS_SRC_DIR          := leds
 LEDS_SRC_FILES        := $(wildcard $(LEDS_SRC_DIR)/*.cpp)
 LEDS_OBJ_FILES        := $(patsubst $(LEDS_SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(LEDS_SRC_FILES))
+NETWORK_SRC_DIR       := network
+NETWORK_SRC_FILES     := $(wildcard $(NETWORK_SRC_DIR)/*.cpp)
+NETWORK_OBJ_FILES     := $(patsubst $(NETWORK_SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(NETWORK_SRC_FILES))
 SERIAL_SRC_DIR        := serial
 SERIAL_SRC_FILES      := $(wildcard $(SERIAL_SRC_DIR)/*.cpp)
 SERIAL_OBJ_FILES      := $(patsubst $(SERIAL_SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SERIAL_SRC_FILES))
@@ -29,12 +32,14 @@ INC_PATHS             := -I./
 
 all: skp
 
-skp: $(HELPERS_OBJ_FILES) $(STAGEKIT_OBJ_FILES) $(LEDS_OBJ_FILES) $(SERIAL_OBJ_FILES) $(CONTROLLER_OBJ_FILES) $(SKP_OBJ_FILES)
+skp: $(HELPERS_OBJ_FILES) $(STAGEKIT_OBJ_FILES) $(LEDS_OBJ_FILES) $(NETWORK_OBJ_FILES) $(SERIAL_OBJ_FILES) $(CONTROLLER_OBJ_FILES) $(SKP_OBJ_FILES)
 	$(COMPILER) $(FLAGS) $(INC_PATHS) $^ -o $(SKP_OUT) $(LUSB_FLAG)
 
 helpers: $(HELPERS_OBJ_FILES)
 
 leds: $(LEDS_OBJ_FILES)
+
+network: $(NETWORK_OBJ_FILES)
 
 serial: $(SERIAL_OBJ_FILES)
 
@@ -51,6 +56,9 @@ $(OBJ_DIR)/%.o: $(HELPERS_SRC_DIR)/%.cpp
 $(OBJ_DIR)/%.o: $(LEDS_SRC_DIR)/%.cpp
 	$(COMPILER) $(FLAGS) $(INC_PATHS) -c -o $@ $<
 
+$(OBJ_DIR)/%.o: $(NETWORK_SRC_DIR)/%.cpp
+	$(COMPILER) $(FLAGS) $(INC_PATHS) -c -o $@ $<
+  
 $(OBJ_DIR)/%.o: $(SERIAL_SRC_DIR)/%.cpp
 	$(COMPILER) $(FLAGS) $(INC_PATHS) -c -o $@ $<
 
@@ -63,4 +71,4 @@ $(OBJ_DIR)/%.o: $(CONTROLLER_SRC_DIR)/%.cpp
 print-%  : ; @echo $* = $($*)
 
 clean:
-	rm -f $(HELPERS_OBJ_FILES) $(LEDS_OBJ_FILES) $(SERIAL_OBJ_FILES) $(STAGEKIT_OBJ_FILES) $(CONTROLLER_OBJ_FILES) $(SKP_OBJ_FILES)
+	rm -f $(HELPERS_OBJ_FILES) $(LEDS_OBJ_FILES) $(NETWORK_OBJ_FILES) $(SERIAL_OBJ_FILES) $(STAGEKIT_OBJ_FILES) $(CONTROLLER_OBJ_FILES) $(SKP_OBJ_FILES)

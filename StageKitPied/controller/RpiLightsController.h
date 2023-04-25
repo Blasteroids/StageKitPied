@@ -26,6 +26,7 @@
 #include "stagekit/USB_360StageKit.h"
 #include "stagekit/StageKitConsts.h"
 #include "leds/LEDArray.h"
+#include "network/RB3E_Network.h"
 
 //
 #define USB_DIRECTION_IN 0x80
@@ -51,6 +52,8 @@ private:
   void SerialAdapter_HandleControlData();
 
   void SerialAdapter_HandleOutReport();
+  
+  void RB3ENetwork_Poll();
 
   void Stagekit_ResetVariables();
 
@@ -66,6 +69,8 @@ private:
 
   void Handle_SerialDisconnect();
 
+  void Handle_RumbleData( uint8_t left_weight, uint8_t right_weight );
+
   void Handle_LEDUpdate( const uint8_t colour, const uint8_t leds );
 
   void Handle_FogUpdate( const bool fogOn );
@@ -76,6 +81,11 @@ private:
   USB_360StageKit    mUSB_360StageKit;
   LEDArray           mLEDS;
   INI_Handler        mINI_Handler;
+  RB3E_Network       mRB3E_Network;
+  
+  bool               m_rb3e_enabled;
+  std::string        m_rb3e_source_ip;
+  uint16_t           m_rb3e_listening_port;
 
   USB_ControlRequest m_control_request;
   unsigned char*     m_ptr_control_request_data;

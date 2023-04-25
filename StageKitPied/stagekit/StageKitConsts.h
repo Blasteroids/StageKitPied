@@ -49,7 +49,7 @@ enum SKSTATUSLEDS {
   SK_STATUS_ALTERNATE  = 0x0D,
 };
 
-// Rumble Data (Small Weight: Left 16 bit + Large Weight: Right 16 bit)
+// Rumble Data (Small Weight: Left 8 bit + Large Weight: Right 8 bit)
 // Stage kit has 4 colours and 8 leds for each colour.
 // It contains no pre-determined patterns, each led is switched on & off with the bit-packed rumble data.
 // const uint16_t

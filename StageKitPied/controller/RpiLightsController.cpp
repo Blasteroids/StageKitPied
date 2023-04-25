@@ -4,6 +4,7 @@
 RpiLightsController::RpiLightsController(const char* ini_file) {
 
   // A lot of default values can be overridden by ini file.
+  m_rb3e_enabled                = false; // By default RB3Enhanced mode is off
   m_stagekit_colour_red         = 0x00;  // Bit set for led number indication
   m_stagekit_colour_green       = 0x00;  // Bit set for led number indication
   m_stagekit_colour_blue        = 0x00;  // Bit set for led number indication
@@ -44,6 +45,19 @@ RpiLightsController::RpiLightsController(const char* ini_file) {
       m_sleeptime_strobe    = mINI_Handler.GetTokenValue( "STROBE" );
     }
 
+    // RB3Enhanced mode?
+    if( !mINI_Handler.SetSection( "RB3E" ) ) {
+      MSG_RPLC_INFO( "INI section 'RB3E' not found - Defaulting to serial mode." );
+    } else {
+      int enabled = mINI_Handler.GetTokenValue( "ENABLED" );
+      if( enabled == 1 ) {
+        m_rb3e_enabled = true;
+      } else {
+        m_rb3e_enabled = false;
+      }
+      m_rb3e_source_ip = mINI_Handler.GetTokenString( "SOURCE_IP" );
+      m_rb3e_listening_port = mINI_Handler.GetTokenValue( "LISTENING_PORT" );
+    }
 
     // Stagekit startup settings
     if( !mINI_Handler.SetSection( "STAGEKIT" ) ) {
@@ -182,13 +196,17 @@ RpiLightsController::~RpiLightsController() {
 };
 
 bool RpiLightsController::Start() {
-
+  if( m_rb3e_enabled ) {
+    return mRB3E_Network.Start( m_rb3e_source_ip, m_rb3e_listening_port );
+  }
+  
+  // Otherwise, use serial connection
   if( mUSB_360StageKit.IsConnected() ) {
     // If already connected, try a reset.
     this->Handle_SerialDisconnect();
     this->Handle_StagekitDisconnect();
   }
-
+    
   if( !this->Handle_StagekitConnect() ) {
     return false;
   }
@@ -201,8 +219,12 @@ bool RpiLightsController::Start() {
 };
 
 uint16_t RpiLightsController::Update( uint16_t time_passed_MS ) {
-
-  this->SerialAdapter_Poll();
+  
+  if( m_rb3e_enabled ) {
+    this->RB3ENetwork_Poll();
+  } else {
+    this->SerialAdapter_Poll();
+  }
 
   m_sleep_time = this->StageKit_Update( time_passed_MS );
 
@@ -212,11 +234,14 @@ uint16_t RpiLightsController::Update( uint16_t time_passed_MS ) {
 };
 
 void RpiLightsController::Stop() {
-
+  if( m_rb3e_enabled ) {
+    mRB3E_Network.Stop();
+    return;
+  }
+  
   mSerialAdapter.Close();
 
   mUSB_360StageKit.End();
-
 };
 
 
@@ -274,64 +299,8 @@ void RpiLightsController::SerialAdapter_HandleOutReport() {
       return;
     }
 
-    uint8_t update = mSerialAdapter.Payload()[ 4 ];
-
-    switch( update ) {
-      case SKRUMBLEDATA::SK_LED_RED:
-        MSG_RPLC_DEBUG( "RED LED" );
-        this->Handle_LEDUpdate(  SKRUMBLEDATA::SK_LED_RED, mSerialAdapter.Payload()[ 3 ] );
-        break;
-     case SKRUMBLEDATA::SK_LED_GREEN:
-        MSG_RPLC_DEBUG( "GREEN LED" );
-        this->Handle_LEDUpdate( SKRUMBLEDATA::SK_LED_GREEN, mSerialAdapter.Payload()[ 3 ] );
-        break;
-      case SKRUMBLEDATA::SK_LED_BLUE:
-        MSG_RPLC_DEBUG( "BLUE LED" );
-        this->Handle_LEDUpdate( SKRUMBLEDATA::SK_LED_BLUE, mSerialAdapter.Payload()[ 3 ] );
-        break;
-      case SKRUMBLEDATA::SK_LED_YELLOW:
-        MSG_RPLC_DEBUG( "YELLLOW LED" );
-        this->Handle_LEDUpdate( SKRUMBLEDATA::SK_LED_YELLOW, mSerialAdapter.Payload()[ 3 ] );
-        break;
-      case SKRUMBLEDATA::SK_FOG_ON:
-        MSG_RPLC_DEBUG( "FOG ON" );
-        this->Handle_FogUpdate( true );
-        break;
-      case SKRUMBLEDATA::SK_FOG_OFF:
-        MSG_RPLC_DEBUG( "FOG OFF" );
-        this->Handle_FogUpdate( false );
-        break;
-      case SKRUMBLEDATA::SK_STROBE_OFF:
-        MSG_RPLC_DEBUG( "Strobe OFF" );
-        this->Handle_StrobeUpdate( 0 );
-        break;
-      case SKRUMBLEDATA::SK_STROBE_SPEED_1:
-        MSG_RPLC_DEBUG( "Strobe - Speed 1" );
-        this->Handle_StrobeUpdate( 1 );
-        break;
-      case SKRUMBLEDATA::SK_STROBE_SPEED_2:
-        MSG_RPLC_DEBUG( "Strobe - Speed 2" );
-        this->Handle_StrobeUpdate( 2 );
-        break;
-      case SKRUMBLEDATA::SK_STROBE_SPEED_3:
-        MSG_RPLC_DEBUG( "Strobe - Speed 3" );
-        this->Handle_StrobeUpdate( 3 );
-        break;
-      case SKRUMBLEDATA::SK_STROBE_SPEED_4:
-        MSG_RPLC_DEBUG( "Strobe - Speed 4" );
-        this->Handle_StrobeUpdate( 4 );
-        break;
-      case SKRUMBLEDATA::SK_ALL_OFF:
-        // I suspect all off includes fog & strobe.
-        MSG_RPLC_DEBUG( "ALL OFF - LEDS & STROBE - " );
-        this->Handle_LEDUpdate( SKRUMBLEDATA::SK_ALL_OFF, SKRUMBLEDATA::SK_ALL_OFF );
-        this->Handle_StrobeUpdate( 0 );
-        this->Handle_FogUpdate( false );
-        break;
-      default:
-        MSG_RPLC_INFO( "Unhandled stagekit data received from serial adapter : " << mSerialAdapter.Payload()[ 2 ] );
-        break;
-    }
+    this->Handle_RumbleData( mSerialAdapter.Payload()[ 3 ], mSerialAdapter.Payload()[ 4 ] );
+    
   } else {
     if( mSerialAdapter.PayloadLength() == 3 ) {
       if( mSerialAdapter.Payload()[ 0 ] == 0x01 && mSerialAdapter.Payload()[ 1 ] == 0x03 ) {
@@ -342,6 +311,16 @@ void RpiLightsController::SerialAdapter_HandleOutReport() {
     MSG_RPLC_INFO( "Unknown payload received from serial adapter : Length %i = " << mSerialAdapter.PayloadLength() );
   }
 
+};
+
+void RpiLightsController::RB3ENetwork_Poll() {
+  if( mRB3E_Network.Poll() ) {
+    MSG_RPLC_DEBUG( "Received RB3E network data." );
+    if( mRB3E_Network.EventWasStagekit() ) {
+      MSG_RPLC_DEBUG( "RB3E data is stage kit." );
+      this->Handle_RumbleData( mRB3E_Network.GetWeightLeft(), mRB3E_Network.GetWeightRight() );
+    }
+  }
 };
 
 void RpiLightsController::Stagekit_ResetVariables() {
@@ -435,6 +414,65 @@ void RpiLightsController::Handle_SerialDisconnect() {
   // Turn off the serial adapter
   mSerialAdapter.Close();
   MSG_RPLC_INFO( "Disconnected from Serial Adapter." );
+};
+
+void RpiLightsController::Handle_RumbleData( uint8_t left_weight, uint8_t right_weight ) {
+  switch( right_weight ) {
+    case SKRUMBLEDATA::SK_LED_RED:
+      MSG_RPLC_DEBUG( "RED LED" );
+      this->Handle_LEDUpdate(  SKRUMBLEDATA::SK_LED_RED, left_weight );
+      break;
+   case SKRUMBLEDATA::SK_LED_GREEN:
+      MSG_RPLC_DEBUG( "GREEN LED" );
+      this->Handle_LEDUpdate( SKRUMBLEDATA::SK_LED_GREEN, left_weight );
+      break;
+    case SKRUMBLEDATA::SK_LED_BLUE:
+      MSG_RPLC_DEBUG( "BLUE LED" );
+      this->Handle_LEDUpdate( SKRUMBLEDATA::SK_LED_BLUE, left_weight );
+      break;
+    case SKRUMBLEDATA::SK_LED_YELLOW:
+      MSG_RPLC_DEBUG( "YELLLOW LED" );
+      this->Handle_LEDUpdate( SKRUMBLEDATA::SK_LED_YELLOW, left_weight );
+      break;
+    case SKRUMBLEDATA::SK_FOG_ON:
+      MSG_RPLC_DEBUG( "FOG ON" );
+      this->Handle_FogUpdate( true );
+      break;
+    case SKRUMBLEDATA::SK_FOG_OFF:
+      MSG_RPLC_DEBUG( "FOG OFF" );
+      this->Handle_FogUpdate( false );
+      break;
+    case SKRUMBLEDATA::SK_STROBE_OFF:
+      MSG_RPLC_DEBUG( "Strobe OFF" );
+      this->Handle_StrobeUpdate( 0 );
+      break;
+    case SKRUMBLEDATA::SK_STROBE_SPEED_1:
+      MSG_RPLC_DEBUG( "Strobe - Speed 1" );
+      this->Handle_StrobeUpdate( 1 );
+      break;
+    case SKRUMBLEDATA::SK_STROBE_SPEED_2:
+      MSG_RPLC_DEBUG( "Strobe - Speed 2" );
+      this->Handle_StrobeUpdate( 2 );
+      break;
+    case SKRUMBLEDATA::SK_STROBE_SPEED_3:
+      MSG_RPLC_DEBUG( "Strobe - Speed 3" );
+      this->Handle_StrobeUpdate( 3 );
+      break;
+    case SKRUMBLEDATA::SK_STROBE_SPEED_4:
+      MSG_RPLC_DEBUG( "Strobe - Speed 4" );
+      this->Handle_StrobeUpdate( 4 );
+      break;
+    case SKRUMBLEDATA::SK_ALL_OFF:
+      // I suspect all off includes fog & strobe.
+      MSG_RPLC_DEBUG( "ALL OFF - LEDS & STROBE - " );
+      this->Handle_LEDUpdate( SKRUMBLEDATA::SK_ALL_OFF, SKRUMBLEDATA::SK_ALL_OFF );
+      this->Handle_StrobeUpdate( 0 );
+      this->Handle_FogUpdate( false );
+      break;
+    default:
+      MSG_RPLC_INFO( "Unhandled stagekit data received : " << right_weight );
+      break;
+  }
 };
 
 // Colour = SK colour - From serial

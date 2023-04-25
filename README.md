@@ -115,6 +115,7 @@ There are 8 sections for each of these, where X corresponds to the 8 colour leds
  - Connect the Stage Kit light POD to the Raspberry Pi.
  - Run the Stage Kit Pied program with the command
    > sudo ./skp
+ 
  Note: root is required to access the USB PDP Stage Kit device.
 
 ## Notes

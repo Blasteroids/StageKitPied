@@ -15,6 +15,7 @@
 #include "libusb.h"
 
 #include "stagekit/USB_ControlRequest.h"
+#include "stagekit/StageKitConfig.h"
 #include "stagekit/StageKitConsts.h"
 
 // HID Class-Specific Requests values. See section 7.2 of the HID specifications
@@ -28,10 +29,11 @@
 #define HID_REPORT_TYPE_OUTPUT        0x02
 #define HID_REPORT_TYPE_FEATURE       0x03
 
-#define STAGEKIT_VID 0x0E6F
-#define STAGEKIT_PID 0x0103
+//#define STAGEKIT_VID 0x0E6F
+//#define STAGEKIT_PID 0x0103
 
-#define STAGEKIT_MAX_INPUT_BUFFER 255
+// Was 255
+#define STAGEKIT_MAX_INPUT_BUFFER 20
 #define USB_REQUEST_TIMEOUT 1000
 #define USB_WRITE_RETRIES 3
 
@@ -41,69 +43,48 @@ public:
 
   ~USB_360StageKit();
 
-  bool Init();
+  bool Init( libusb_device_handle* ptr_usb_device_handle );
 
   bool IsConnected();
-
-  void EnableStatusLEDs( bool on );
-
-  void EnableLights( bool on );
-
-  void EnableFog( bool on );
-
-  void EnableStrobe( bool on );
-
-  bool LightsEnabled();
-
-  bool FogEnabled();
-
-  bool StrobeEnabled();
 
   int Send( USB_ControlRequest* ptr_control_request, unsigned short length );
 
   void End();
 
-  // Buttons data
-
   bool PollButtons(); // Returns true if buttons have changed
 
   uint16_t GetButtons();
 
-  // Status LED.  Use SK_STATUS_x
-  bool SetStatusLEDs( uint8_t status_value );
+  void SetConfig( StageKitConfig* ptr_config );
 
-  // Rumble/SK-LED data
-  // lValue & rValue are the haptic weight controller values.
-  // lvalue = led_numbers
-  // rvalue = colour / item
-  bool SetLights( uint8_t lValue, uint8_t rValue );
+  bool UpdateStatusLEDs( const uint8_t status_value );
 
-  // Speed = 0 - 4.  0 - Off.
-  bool SetStrobe( uint8_t speed );
+  bool UpdateLights( const uint8_t left_weight, const uint8_t right_weight );
 
-  bool SetFog(bool on);
+  bool UpdateStrobe( const uint8_t speed );
 
-  int TestInterrupt( int position );
+  bool UpdateFog( const bool on );
 
 private:
   bool ClaimInterfaces();
 
   bool ReleaseInterfaces();
 
-  libusb_device_handle* m_usb_device_handle;
-  libusb_context*       m_usb_context;
+  bool SetStatusLEDs( const uint8_t status_value );
+  
+  bool SetLights( const uint8_t left_weight, const uint8_t right_weight ); // Rumble/SK-LED data
+  
+  bool SetStrobe( const uint8_t speed ); // Speed = 0 - 4.  0 - Off.
 
-  uint8_t      m_report_in[ STAGEKIT_MAX_INPUT_BUFFER ]; // For polling buttons
-  uint8_t      m_report_out[ 8 ];  // For sending rumble/SK-LED data to the device
+  bool SetFog( const bool on );
+  
+  libusb_device_handle* m_ptr_usb_device_handle;
 
-  bool m_status_leds_enabled; // If false will not show the current xbox LED status.
-  bool m_lights_enabled;      // If false will suppress sending the light data to the Stage Kit.
-  bool m_fog_enabled;         // If false will suppress sending the fog data to the Stage Kit.
-  bool m_strobe_enabled;      // If false will suppress sending the strobe data to the Stage Kit.
+  uint8_t m_report_in[ STAGEKIT_MAX_INPUT_BUFFER ]; // For polling buttons
+  uint8_t m_report_out[ 8 ];  // For sending rumble/SK-LED data to the device
 
-  // Current state of the status LEDs
-  uint8_t m_status_leds;
-
+  StageKitConfig* m_ptr_stagekit_config;
+  
   // Button states
   uint32_t m_buttonstate;
   uint32_t m_buttonstate_old;

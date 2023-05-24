@@ -12,6 +12,7 @@
 
 
 #include <cstring> // memcpy
+#include <string>
 #include <cstdint>
 #include <iostream>
 #include <unistd.h>
@@ -31,8 +32,12 @@ public:
   SK9822();
   ~SK9822();
 
-  bool Start( const int number_leds, const char* device_name );
+  bool SetEnabled( const bool enabled );
 
+  bool IsEnabled();
+
+  bool Init( const int number_leds, const std::string& device_name );
+  
   // Push colour/brightness changes to the actual LEDs
   bool Update();
 
@@ -60,13 +65,17 @@ public:
   void DumpBuffer();
 
 private:
-  int m_file_descriptor;
-  int m_number_leds;
+  bool Start();
 
-  int m_current_led_offset; // Used for rotating led colours left or right.
+  void Stop();
 
+  bool           m_enabled;
+  std::string    m_device_name;
+  int            m_file_descriptor;
+  int            m_number_leds;
+  int            m_current_led_offset; // Used for rotating led colours left or right.
   SK9822_struct* m_buffer;
-  size_t   m_buffer_size;
+  size_t         m_buffer_size;
 };
 
 #endif

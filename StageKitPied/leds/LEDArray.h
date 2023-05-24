@@ -27,9 +27,11 @@ public:
 
   ~LEDArray();
 
+  bool SetEnabled( const bool enabled );
+  
   void TurnOff();
 
-  bool Start( const std::string& device_name, const int led_amount );
+  bool Init( const std::string& device_name, const int led_amount );
 
   bool LoadSettingsSK( const std::string& ini_file );
 
@@ -48,7 +50,7 @@ private:
 
   SK9822 mSK9822;
 
-  bool m_started;
+  bool m_is_init;
 
   LEDGroup m_LEDGroups_Red[ 8 ];
   LEDGroup m_LEDGroups_Green[ 8 ];

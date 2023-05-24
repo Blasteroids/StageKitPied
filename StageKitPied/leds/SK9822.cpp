@@ -2,25 +2,49 @@
 #include "SK9822.h"
 
 SK9822::SK9822() {
+  m_enabled = false;
   m_number_leds = 0;
   m_current_led_offset = 0;  // LEDS have range: 1 to m_number_leds
+  m_file_descriptor = -1;
 };
 
 SK9822::~SK9822() {
 
-  this->AllOff();
-  this->Update();
+  this->Stop();
 
   delete [] m_buffer;
 };
 
-bool SK9822::Start( const int number_leds, const char* device_name ) {
+bool SK9822::SetEnabled( const bool enabled ) {
+  if( m_enabled == enabled ) {
+    return true;
+  }
+
+  if( enabled ) {
+    if( this->Start() ) {
+      return true;
+    }
+    this->Stop();
+    return false;
+  }
+  
+  this->Stop();
+  return true;
+};
+
+bool SK9822::IsEnabled() {
+  return m_enabled;
+};
+
+bool SK9822::Init( const int number_leds, const std::string& device_name ) {
   if( number_leds == 0 ) {
     return false;
   }
 
   // SK9822 needs a blank end frame buffer.
   int end_buffer_size = 1 + ( ( number_leds / 2 ) / 32 );
+
+  m_device_name = device_name;
 
   m_number_leds = number_leds;
   m_buffer = new SK9822_struct[ number_leds + 2 + end_buffer_size ];  // Data format = Start frame + LEDS + End frame
@@ -42,34 +66,11 @@ bool SK9822::Start( const int number_leds, const char* device_name ) {
   // Ensure all LEDS are off at start
   this->AllOff();
 
-  // Open the file descriptor to the device in write only mode
-  m_file_descriptor = open( device_name, O_WRONLY );
-  if( m_file_descriptor < 0 ) {
-    return false;
-  }
-
-  // Setup SPI with write mode, the bits per word & the maximum writing speed.
-  const uint8_t spi_mode      = SPI_MODE_0;
-  const uint8_t bits_per_word = 8;
-  const uint32_t speed_in_hz  = 4000000; // 4Mhz
-
-  if( ioctl( m_file_descriptor, SPI_IOC_WR_MODE, &spi_mode ) == -1 ) {
-    return false;
-  }
-  if( ioctl( m_file_descriptor, SPI_IOC_WR_BITS_PER_WORD, &bits_per_word ) == -1 ) {
-    return false;
-  }
-  if( ioctl( m_file_descriptor, SPI_IOC_WR_MAX_SPEED_HZ, &speed_in_hz ) == -1 ) {
-    return false;
-  }
-
-  this->Update();
-
   return true;
 };
 
 bool SK9822::Update() {
-  if( m_number_leds == 0 ) {
+  if( !m_enabled || m_number_leds == 0 ) {
     return false;
   }
 
@@ -198,3 +199,49 @@ void SK9822::DumpBuffer() {
   }
   std::cout << std::endl;
 };
+
+bool SK9822::Start() {
+  if( m_number_leds == 0 ) {
+    return false;
+  }
+
+  // Open the file descriptor to the device in write only mode
+  m_file_descriptor = open( m_device_name.c_str(), O_WRONLY );
+  if( m_file_descriptor < 0 ) {
+    return false;
+  }
+
+  // Setup SPI with write mode, the bits per word & the maximum writing speed.
+  const uint8_t spi_mode      = SPI_MODE_0;
+  const uint8_t bits_per_word = 8;
+  const uint32_t speed_in_hz  = 4000000; // 4Mhz
+
+  if( ioctl( m_file_descriptor, SPI_IOC_WR_MODE, &spi_mode ) == -1 ) {
+    return false;
+  }
+  if( ioctl( m_file_descriptor, SPI_IOC_WR_BITS_PER_WORD, &bits_per_word ) == -1 ) {
+    return false;
+  }
+  if( ioctl( m_file_descriptor, SPI_IOC_WR_MAX_SPEED_HZ, &speed_in_hz ) == -1 ) {
+    return false;
+  }
+
+  m_enabled = true;
+
+  this->Update();
+
+  return true;
+};
+
+void SK9822::Stop() {
+  this->AllOff();
+  this->Update();
+
+  if( m_file_descriptor != -1 ) {
+    close( m_file_descriptor );
+    m_file_descriptor = -1;
+  }
+
+  m_enabled = false;
+};
+

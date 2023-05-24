@@ -29,12 +29,16 @@ public:
 
   ~RB3E_Network();
 
-  bool Start( std::string& source_ip, uint16_t source_port );
+  bool StartReceiver( std::string& source_ip, uint16_t listening_port );
+  
+  bool StartSender( std::string& target_ip, uint16_t target_port );
 
   void Stop();
 
   bool Poll();  // Returns true if data.
 
+  bool SendLightEvent( const uint8_t left_weight, const uint8_t right_weight );
+ 
   bool EventWasSongName();
 
   bool EventWasArtist();
@@ -53,22 +57,27 @@ public:
 
   uint8_t GetBandStars();
 
-  bool PlayerExists( uint8_t player_id );
+  bool PlayerExists( const uint8_t player_id );
 
-  uint32_t GetPlayerScore( uint8_t player_id );
+  uint32_t GetPlayerScore( const uint8_t player_id );
 
-  uint8_t GetPlayerDifficulty( uint8_t player_id );
+  uint8_t GetPlayerDifficulty( const uint8_t player_id );
 
-  uint8_t GetPlayerTrackType( uint8_t player_id );
+  uint8_t GetPlayerTrackType( const uint8_t player_id );
 
 private:
   void DumpData();
+  
+  bool               m_is_sender;
 
   int                m_network_socket;
   uint32_t           m_expected_source_ip;
+  
+  struct sockaddr_in m_target_address;
+  uint32_t           m_target_ip;
 
-  uint8_t            m_receive_buffer[ 512 ];
-  ssize_t            m_receive_buffer_last_size;
+  uint8_t            m_data_buffer[ 512 ];
+  ssize_t            m_data_buffer_last_size;
 
   uint8_t            m_event_type_last;
   uint8_t            m_game_state; // 0 - In menu   1 - In game

@@ -1,5 +1,5 @@
-#ifndef _stagekitconsts_h
-#define _stagekitconsts_h
+#ifndef _STAGEKITCONSTS_H_
+#define _STAGEKITCONSTS_H_
 
 // Interfaces
 // const uint16_t
@@ -52,28 +52,27 @@ enum SKSTATUSLEDS {
 // Rumble Data (Small Weight: Left 8 bit + Large Weight: Right 8 bit)
 // Stage kit has 4 colours and 8 leds for each colour.
 // It contains no pre-determined patterns, each led is switched on & off with the bit-packed rumble data.
-// const uint16_t
 enum SKRUMBLEDATA {
-  SK_LED_1          = 0x01,  // 0000 0000 0000 0001
-  SK_LED_2          = 0x02,  // 0000 0000 0000 0010
-  SK_LED_3          = 0x04,  // 0000 0000 0000 0100
-  SK_LED_4          = 0x08,  // 0000 0000 0000 1000 
-  SK_LED_5          = 0x10,  // 0000 0000 0001 0000
-  SK_LED_6          = 0x20,  // 0000 0000 0010 0000
-  SK_LED_7          = 0x40,  // 0000 0000 0100 0000
-  SK_LED_8          = 0x80,  // 0000 0000 1000 0000
-  SK_FOG_ON         = 0x01,  // 0000 0001 0000 0000
-  SK_FOG_OFF        = 0x02,  // 0000 0010 0000 0000
-  SK_STROBE_SPEED_1 = 0x03,  // 0000 0011 0000 0000
-  SK_STROBE_SPEED_2 = 0x04,  // 0000 0100 0000 0000
-  SK_STROBE_SPEED_3 = 0x05,  // 0000 0101 0000 0000
-  SK_STROBE_SPEED_4 = 0x06,  // 0000 0110 0000 0000
-  SK_STROBE_OFF     = 0x07,  // 0000 0111 0000 0000
-  SK_LED_BLUE       = 0x20,  // 0010 0000 0000 0000
-  SK_LED_GREEN      = 0x40,  // 0100 0000 0000 0000
-  SK_LED_YELLOW     = 0x60,  // 0110 0000 0000 0000
-  SK_LED_RED        = 0x80,  // 1000 0000 0000 0000
-  SK_LED_MASK       = 0xE0,  // 1110 0000 0000 0000
-  SK_ALL_OFF        = 0xFF,  // 1111 1111 0000 0000
+  SK_LED_1          = 0x01,  // 0000 0001 - Left weight
+  SK_LED_2          = 0x02,  // 0000 0010 - Left weight
+  SK_LED_3          = 0x04,  // 0000 0100 - Left weight
+  SK_LED_4          = 0x08,  // 0000 1000 - Left weight
+  SK_LED_5          = 0x10,  // 0001 0000 - Left weight
+  SK_LED_6          = 0x20,  // 0010 0000 - Left weight
+  SK_LED_7          = 0x40,  // 0100 0000 - Left weight
+  SK_LED_8          = 0x80,  // 1000 0000 - Left weight
+  SK_FOG_ON         = 0x01,  // 0000 0001 - Right weight
+  SK_FOG_OFF        = 0x02,  // 0000 0010 - Right weight
+  SK_STROBE_SPEED_1 = 0x03,  // 0000 0011 - Right weight
+  SK_STROBE_SPEED_2 = 0x04,  // 0000 0100 - Right weight
+  SK_STROBE_SPEED_3 = 0x05,  // 0000 0101 - Right weight
+  SK_STROBE_SPEED_4 = 0x06,  // 0000 0110 - Right weight
+  SK_STROBE_OFF     = 0x07,  // 0000 0111 - Right weight
+  SK_LED_BLUE       = 0x20,  // 0010 0000 - Right weight
+  SK_LED_GREEN      = 0x40,  // 0100 0000 - Right weight
+  SK_LED_YELLOW     = 0x60,  // 0110 0000 - Right weight
+  SK_LED_RED        = 0x80,  // 1000 0000 - Right weight
+  SK_LED_MASK       = 0xE0,  // 1110 0000 - Right weight
+  SK_ALL_OFF        = 0xFF,  // 1111 1111 - Right weight
 };
 #endif

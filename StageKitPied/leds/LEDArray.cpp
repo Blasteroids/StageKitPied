@@ -2,7 +2,7 @@
 #include "LEDArray.h"
 
 LEDArray::LEDArray() {
-  m_started = false;
+  m_is_init = false;
   m_SK_LED_Number[ 0 ] = SK_LED_1;
   m_SK_LED_Number[ 1 ] = SK_LED_2;
   m_SK_LED_Number[ 2 ] = SK_LED_3;
@@ -17,25 +17,29 @@ LEDArray::~LEDArray() {
   this->TurnOff();
 };
 
+bool LEDArray::SetEnabled( const bool enabled ) {
+  return mSK9822.SetEnabled( enabled );
+};
+
 void LEDArray::TurnOff() {
-  if( m_started ) {
+  if( m_is_init ) {
     mSK9822.AllOff();
     mSK9822.Update();
   }
 };
 
-bool LEDArray::Start( const std::string& device_name, const int led_amount ) {
+bool LEDArray::Init( const std::string& device_name, const int led_amount ) {
   MSG_LEDARRAY_INFO( "Device = " << device_name );
   MSG_LEDARRAY_INFO( "LEDS   = " << led_amount );
 
   this->TurnOff();
 
-  m_started = mSK9822.Start( led_amount, device_name.c_str() );
-  if( !m_started ) {
+  m_is_init = mSK9822.Init( led_amount, device_name );
+  if( !m_is_init ) {
     this->TurnOff();
   }
 
-  return m_started;
+  return m_is_init;
 };
 
 bool LEDArray::LoadSettingsSK( const std::string& ini_file ) {

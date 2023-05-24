@@ -48,14 +48,14 @@ int main(int arc, char *argv[]) {
   MSG_SKP_INFO( "Started" );
 
   // Sleepy timer
-  uint16_t sleepyTime = 0;
+  long sleepyTime = 0;
 
   SleepTimer sleeper;
   sleeper.SetSleepTimeMax( sleepyTime );
   sleeper.Start();
 
-  uint16_t slept_ms = 10;
-  uint16_t sleep_time_new = 10;
+  long slept_ms = 10;
+  long sleep_time_new = 10;
 
   ConsoleInput console;
 

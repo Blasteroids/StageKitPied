@@ -2,8 +2,9 @@
 #include "RB3E_Network.h"
 
 RB3E_Network::RB3E_Network() {
+  m_is_sender = false;
   m_network_socket = -1;
-  m_receive_buffer_last_size = 0;
+  m_data_buffer_last_size = 0;
 
   m_event_type_last = 0;
   m_game_state      = 0;
@@ -11,6 +12,7 @@ RB3E_Network::RB3E_Network() {
   m_weight_right    = 0;
   m_band_score      = 0;
   m_band_stars      = 0;
+
   for( int i = 0; i < 4; i++ ) {
     m_player_exists[ i ] = 0;
     m_player_score[ i ] = 0;
@@ -25,7 +27,7 @@ RB3E_Network::~RB3E_Network() {
 
 // source_ip = The IP of the machine running RB3E
 // listening_port = The local port to listen on for the RB3E data
-bool RB3E_Network::Start( std::string& source_ip, uint16_t listening_port ) {
+bool RB3E_Network::StartReceiver( std::string& source_ip, uint16_t listening_port ) {
   if( m_network_socket != -1 ) {
     this->Stop();
   }
@@ -72,36 +74,81 @@ bool RB3E_Network::Start( std::string& source_ip, uint16_t listening_port ) {
   return true;
 };
 
+bool RB3E_Network::StartSender( std::string& target_ip, uint16_t target_port ) {
+  if( m_network_socket != -1 ) {
+    this->Stop();
+  }
+
+  MSG_RB3E_NETWORK_DEBUG( "Sending to port = " << target_port << " : Target IP = " << target_ip );
+
+  m_network_socket =  socket( AF_INET, SOCK_DGRAM, 0 );
+  if( m_network_socket < 0 ) {
+    MSG_RB3E_NETWORK_ERROR( "Failed to create socket." );
+    this->Stop();
+    return false;
+  }
+
+  // Setup sockaddr  
+  memset( &m_target_address, 0, sizeof( m_target_address ) );
+  m_target_address.sin_family = AF_INET;
+  m_target_address.sin_port = htons( target_port );
+  
+  // No target? Then broadcast
+  m_target_ip = inet_addr( target_ip.c_str() );
+  if( m_target_ip == 0 ) {
+    m_target_address.sin_addr.s_addr = htonl( INADDR_BROADCAST );
+    
+    int opt_val = 1;
+    if( setsockopt( m_network_socket, SOL_SOCKET, SO_BROADCAST, (char*)&opt_val, sizeof( opt_val ) ) == -1 ) {
+      MSG_RB3E_NETWORK_ERROR( "Failed to get socket as broadcast." );
+      this->Stop();
+      return false;    
+    }
+    MSG_RB3E_NETWORK_INFO( "Network socket created.  Target = ALL : " << target_port );
+  } else {
+    m_target_address.sin_addr.s_addr = m_target_ip;
+    MSG_RB3E_NETWORK_INFO( "Network socket created.  Target = " << target_ip << " : " << target_port );
+  }  
+
+  
+  m_is_sender = true;
+
+  return true;
+
+};
+
 void RB3E_Network::Stop() {
   if( m_network_socket != -1 ) {
     close( m_network_socket );
     m_network_socket = -1;
   }
+  m_event_type_last = 0;
+  m_is_sender = false;
 };
 
 bool RB3E_Network::Poll() {
-  if( m_network_socket == -1 ) {
+  if( m_is_sender || m_network_socket == -1 ) {
     return false;
   }
   
   struct sockaddr_in senders_address;
   socklen_t senders_address_length = sizeof( senders_address );
 
-  m_receive_buffer_last_size = recvfrom( m_network_socket,
-                                         m_receive_buffer,
-                                         sizeof( m_receive_buffer ),
-                                         MSG_DONTWAIT,
-                                         (struct sockaddr*)& senders_address,
-                                         &senders_address_length );
+  m_data_buffer_last_size = recvfrom( m_network_socket,
+                                      m_data_buffer,
+                                      sizeof( m_data_buffer ),
+                                      MSG_DONTWAIT,
+                                      (struct sockaddr*)& senders_address,
+                                      &senders_address_length );
  
-  if( m_receive_buffer_last_size < 1 ) {
+  if( m_data_buffer_last_size < 1 ) {
     return false;
   }
 
 #ifdef DEBUG
   char ip[ INET_ADDRSTRLEN ];
   inet_ntop( AF_INET, &( senders_address.sin_addr ), ip, INET_ADDRSTRLEN );
-  MSG_RB3E_NETWORK_DEBUG( "Received data from IP: " << ip << "    Port: " << ntohs( senders_address.sin_port ) << " Data Size = " << m_receive_buffer_last_size );
+  MSG_RB3E_NETWORK_DEBUG( "Received data from IP: " << ip << "    Port: " << ntohs( senders_address.sin_port ) << " Data Size = " << m_data_buffer_last_size );
 #endif
 
   if( m_expected_source_ip != 0 ) {
@@ -113,10 +160,10 @@ bool RB3E_Network::Poll() {
     }
   }
 
-  RB3E_EventPacket* packet = (RB3E_EventPacket*)&m_receive_buffer;
+  RB3E_EventPacket* packet = (RB3E_EventPacket*)&m_data_buffer;
   if( ntohl( packet->Header.ProtocolMagic ) != RB3E_NETWORK_MAGICKEY ) {
     MSG_RB3E_NETWORK_INFO( "Incorrect RB3E magic key in packet." );
-    m_receive_buffer_last_size = 0;
+    m_data_buffer_last_size = 0;
     return false;
   }
 
@@ -186,6 +233,29 @@ bool RB3E_Network::Poll() {
   return true;
 };
 
+bool RB3E_Network::SendLightEvent( const uint8_t left_weight, const uint8_t right_weight ) {
+  if( !m_is_sender || m_network_socket == -1 ) {
+    return false;
+  }
+
+  m_data_buffer[ 0 ] = 0x52; // R
+  m_data_buffer[ 1 ] = 0x42; // B
+  m_data_buffer[ 2 ] = 0x33; // 3
+  m_data_buffer[ 3 ] = 0x45; // E
+  m_data_buffer[ 4 ] = 0x00; // Protocol version
+  m_data_buffer[ 5 ] = RB3E_EVENT_STAGEKIT; // Event type
+  m_data_buffer[ 6 ] = 0x02; // Payload size
+  m_data_buffer[ 7 ] = 0x00; // Platform
+  m_data_buffer[ 8 ] = left_weight;
+  m_data_buffer[ 9 ] = right_weight;
+  
+  m_data_buffer_last_size = 10;
+  
+  int sent = sendto( m_network_socket, m_data_buffer, m_data_buffer_last_size, 0, (sockaddr*)&m_target_address, sizeof( m_target_address ) );
+  
+  return ( sent != m_data_buffer_last_size );
+};
+
 bool RB3E_Network::EventWasSongName() {
   return m_event_type_last == RB3E_EVENT_SONG_NAME;
 };
@@ -222,7 +292,7 @@ uint8_t RB3E_Network::GetBandStars() {
   return m_band_stars;
 };
 
-bool RB3E_Network::PlayerExists( uint8_t player_id ) {
+bool RB3E_Network::PlayerExists( const uint8_t player_id ) {
   if( player_id < 4 ) {
     return m_player_exists[ player_id ] == 0 ? false:true;
   }
@@ -230,7 +300,7 @@ bool RB3E_Network::PlayerExists( uint8_t player_id ) {
   return false;
 };
 
-uint32_t RB3E_Network::GetPlayerScore( uint8_t player_id ) {
+uint32_t RB3E_Network::GetPlayerScore( const uint8_t player_id ) {
   if( player_id < 4 ) {
     return 0;
   }
@@ -238,7 +308,7 @@ uint32_t RB3E_Network::GetPlayerScore( uint8_t player_id ) {
   return m_player_score[ player_id ];
 };
 
-uint8_t RB3E_Network::GetPlayerDifficulty( uint8_t player_id ) {
+uint8_t RB3E_Network::GetPlayerDifficulty( const uint8_t player_id ) {
   if( player_id < 4 ) {
     return 0;
   }
@@ -246,7 +316,7 @@ uint8_t RB3E_Network::GetPlayerDifficulty( uint8_t player_id ) {
   return m_player_difficulty[ player_id ];
 };
 
-uint8_t RB3E_Network::GetPlayerTrackType( uint8_t player_id ) {
+uint8_t RB3E_Network::GetPlayerTrackType( const uint8_t player_id ) {
   if( player_id < 4 ) {
     return 0;
   }
@@ -258,7 +328,7 @@ uint8_t RB3E_Network::GetPlayerTrackType( uint8_t player_id ) {
 void RB3E_Network::DumpData() {
   bool dump_raw_data = false;
   
-  RB3E_EventPacket* packet = (RB3E_EventPacket*)&m_receive_buffer;
+  RB3E_EventPacket* packet = (RB3E_EventPacket*)&m_data_buffer;
 
   switch( packet->Header.PacketType ) {
     case RB3E_EVENT_ALIVE:
@@ -347,8 +417,8 @@ void RB3E_Network::DumpData() {
   }
 
   if( dump_raw_data ) {
-    for( int i = 0; i < m_receive_buffer_last_size; i++ ) {
-      std::cout << std::hex << std::setw( 2 ) << std::setfill( '0' ) << static_cast<int>( m_receive_buffer[ i ] ) << " ";
+    for( int i = 0; i < m_data_buffer_last_size; i++ ) {
+      std::cout << std::hex << std::setw( 2 ) << std::setfill( '0' ) << static_cast<int>( m_data_buffer[ i ] ) << " ";
     }  
     std::cout << std::endl;
   }

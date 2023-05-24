@@ -1,7 +1,12 @@
 # StageKitPied
 Rock Band Stage Kit Pied is a highly configurable interface that runs on the Raspberry Pi platform.  It sits between an xbox 360 and the Rock Band Stage Kit (released by PDP) to read the lighting cues from the Harmonix games "Rock Band 2" and "Rock Band 3", which it then uses to switch on & off LEDs in a large LED strip array.
 
+WARNING: INI file has changed!  Please use new INI and copy over the settings you need.  Below INI file details are not up-to-date, see comments in the new INI file.
+
+UPDATE 24/05/2023 : Lucky enough to own more than 1 Stage Kit?  Now connect up to 4 to the Raspberry Pi & have perfectly synched lights on all of them.  Light pass-through has now been enabled.  This means you can now use the Stage Kit in All Instrument Mode if running in RB3e mode.
+
 UPDATE 25/04/2023 : No Stage Kit?  Well that's not a problem if you're using RB3Enhanced (https://github.com/RBEnhanced/RB3Enhanced)  To be able to use the RB3Enhanced data please read the RB3Enhanced section at the bottom of this readme.  Thanks go out to the RB3Enhanced devs for highlighting the relevent data they can send out over UDP.
+
 
 ## Examples of it in action
 [![Example 1](https://img.youtube.com/vi/fq0_RiIjsV8/0.jpg)](https://www.youtube.com/watch?v=fq0_RiIjsV8)  [![Example 2](https://img.youtube.com/vi/q-61C9YkRUw/0.jpg)](https://www.youtube.com/watch?v=q-61C9YkRUw)

@@ -597,7 +597,6 @@ void RpiLightsController::Handle_RumbleData( uint8_t left_weight, uint8_t right_
       this->Handle_LEDUpdate( SKRUMBLEDATA::SK_ALL_OFF, SKRUMBLEDATA::SK_ALL_OFF );
       this->Handle_StrobeUpdate( 0 );
       this->Handle_FogUpdate( false );
-      MSG_RPLC_INFO( "FOG OFF" );
       break;
     default:
       MSG_RPLC_INFO( "Unhandled stagekit data received : " << right_weight );

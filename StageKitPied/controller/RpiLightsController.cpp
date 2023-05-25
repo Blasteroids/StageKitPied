@@ -439,10 +439,6 @@ void RpiLightsController::Stagekit_ResetVariables() {
 };
 
 void RpiLightsController::StageKit_PollButtons( long time_passed_in_ms ) {
-  if( mStageKitManager.AmountOfStageKits() < 2 ) {
-    return;
-  }
-  
   if( time_passed_in_ms < m_button_check_delay ) {
     m_button_check_delay -= time_passed_in_ms;
   } else {
@@ -482,7 +478,7 @@ bool RpiLightsController::Handle_StagekitConnect() {
 
   // If there's only 1 stagekit then use config 1 by default
   if( mStageKitManager.AmountOfStageKits() == 1 ) {
-    mStageKitManager.SetConfigIDForStageKit( 0, 0 );
+    mStageKitManager.SetConfigIDForStageKit( 0, 1 );
   }
 
   return true;

@@ -31,6 +31,8 @@ RpiLightsController::RpiLightsController( const char* ini_file ) {
   m_nodata_green                = 0;
   m_nodata_blue                 = 0;
   
+  m_stagekit_default_config     = 0;
+  
   m_button_check_delay          = 2000;   // Time between next button repeat
   
   m_ptr_control_request_data = (unsigned char*) &m_control_request.header;
@@ -85,6 +87,15 @@ RpiLightsController::RpiLightsController( const char* ini_file ) {
       }
       m_rb3e_target_ip = mINI_Handler.GetTokenString( "TARGET_IP" );
       m_rb3e_target_port = mINI_Handler.GetTokenValue( "TARGET_PORT" );
+    }
+    
+    if( !mINI_Handler.SetSection( "STAGEKIT_CONFIG" ) ) {
+      MSG_RPLC_INFO( "INI section 'STAGEKIT_CONFIG' not found - Using default settings." );
+    } else {
+      m_stagekit_default_config = mINI_Handler.GetTokenValue( "DEFAULT_CONFIG" );
+      if( m_stagekit_default_config > 4 ) {
+        m_stagekit_default_config = 0;
+      }
     }
     
     std::string section_name;
@@ -476,9 +487,16 @@ bool RpiLightsController::Handle_StagekitConnect() {
 
   MSG_RPLC_INFO( "Connected to a X360 StageKit POD." );
 
-  // If there's only 1 stagekit then use config 1 by default
-  if( mStageKitManager.AmountOfStageKits() == 1 ) {
-    mStageKitManager.SetConfigIDForStageKit( 0, 1 );
+  if( m_stagekit_default_config == 0 ) {
+    // If there's only 1 stagekit then use config 1 by default
+    if( mStageKitManager.AmountOfStageKits() == 1 ) {
+      mStageKitManager.SetConfigIDForStageKit( 0, 1 );
+    }
+  } else {
+    mStageKitManager.SetConfigIDForStageKit( 0, m_stagekit_default_config );
+    mStageKitManager.SetConfigIDForStageKit( 1, m_stagekit_default_config );
+    mStageKitManager.SetConfigIDForStageKit( 2, m_stagekit_default_config );
+    mStageKitManager.SetConfigIDForStageKit( 3, m_stagekit_default_config );    
   }
 
   return true;

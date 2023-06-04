@@ -94,6 +94,8 @@ private:
   unsigned char*     m_ptr_control_request_data;
   bool               m_serial_connected_to_x360;
 
+  uint8_t            m_stagekit_default_config;
+
   uint8_t            m_stagekit_colour_red;
   uint8_t            m_stagekit_colour_green;
   uint8_t            m_stagekit_colour_blue;

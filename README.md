@@ -78,7 +78,8 @@ Either compile the firmware yourself, or use this compiled firmware file found i
 
 ## Setting up the StageKitPied software
 ###### Installing the software
-Either compile from the source or copy the 'skp' & ini files from the 'StageKitPied' folder.
+For 32 bit OS only : You can use the included 'skp' program, just copy that & the ini files from the 'StageKitPied' folder.
+Or/Otherwise: Please compile from the source.
 
 Place them into any folder you want to use on the Raspberry Pi, just ensure the ini files are in the same directory as the program.
 

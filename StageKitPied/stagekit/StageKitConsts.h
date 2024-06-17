@@ -53,6 +53,7 @@ enum SKSTATUSLEDS {
 // Stage kit has 4 colours and 8 leds for each colour.
 // It contains no pre-determined patterns, each led is switched on & off with the bit-packed rumble data.
 enum SKRUMBLEDATA {
+  SK_NONE           = 0x00,  // 0000 0000 - Left weight
   SK_LED_1          = 0x01,  // 0000 0001 - Left weight
   SK_LED_2          = 0x02,  // 0000 0010 - Left weight
   SK_LED_3          = 0x04,  // 0000 0100 - Left weight

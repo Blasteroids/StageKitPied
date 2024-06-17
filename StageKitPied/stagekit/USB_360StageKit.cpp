@@ -86,7 +86,7 @@ void USB_360StageKit::End() {
   // Ensure nothing is left on
   this->SetFog( false );
   this->SetStrobe( 0 );
-  this->SetLights( SKRUMBLEDATA::SK_ALL_OFF, SKRUMBLEDATA::SK_ALL_OFF );
+  this->SetLights( SKRUMBLEDATA::SK_NONE, SKRUMBLEDATA::SK_ALL_OFF );
   
   // Release USB interfaces
   this->ReleaseInterfaces();
@@ -153,7 +153,7 @@ void USB_360StageKit::SetConfig( StageKitConfig* ptr_config ) {
   m_ptr_stagekit_config = ptr_config;
 
   if( !m_ptr_stagekit_config->m_light_pod_enabled ) {
-    this->SetLights( SKRUMBLEDATA::SK_ALL_OFF, SKRUMBLEDATA::SK_ALL_OFF );
+    this->SetLights( SKRUMBLEDATA::SK_NONE, SKRUMBLEDATA::SK_ALL_OFF );
   }
 
   if( !m_ptr_stagekit_config->m_strobe_enabled ) {

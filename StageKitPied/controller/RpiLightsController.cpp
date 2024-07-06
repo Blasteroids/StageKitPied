@@ -510,7 +510,7 @@ void RpiLightsController::Handle_StagekitDisconnect() {
   this->Handle_FogUpdate( false );
 
   // Turn off all LEDs
-  this->Handle_LEDUpdate( SKRUMBLEDATA::SK_ALL_OFF, SKRUMBLEDATA::SK_ALL_OFF );
+  this->Handle_LEDUpdate( SKRUMBLEDATA::SK_NONE, SKRUMBLEDATA::SK_ALL_OFF );
 
   // Disconnect from any actual USB Stage Kits
   mStageKitManager.End();
@@ -563,19 +563,19 @@ void RpiLightsController::Handle_RumbleData( uint8_t left_weight, uint8_t right_
   switch( right_weight ) {
     case SKRUMBLEDATA::SK_LED_RED:
       MSG_RPLC_DEBUG( "RED LED" );
-      this->Handle_LEDUpdate( SKRUMBLEDATA::SK_LED_RED, left_weight );
+      this->Handle_LEDUpdate( left_weight, SKRUMBLEDATA::SK_LED_RED);
       break;
    case SKRUMBLEDATA::SK_LED_GREEN:
       MSG_RPLC_DEBUG( "GREEN LED" );
-      this->Handle_LEDUpdate( SKRUMBLEDATA::SK_LED_GREEN, left_weight );
+      this->Handle_LEDUpdate( left_weight, SKRUMBLEDATA::SK_LED_GREEN);
       break;
     case SKRUMBLEDATA::SK_LED_BLUE:
       MSG_RPLC_DEBUG( "BLUE LED" );
-      this->Handle_LEDUpdate( SKRUMBLEDATA::SK_LED_BLUE, left_weight );
+      this->Handle_LEDUpdate( left_weight, SKRUMBLEDATA::SK_LED_BLUE);
       break;
     case SKRUMBLEDATA::SK_LED_YELLOW:
       MSG_RPLC_DEBUG( "YELLLOW LED" );
-      this->Handle_LEDUpdate( SKRUMBLEDATA::SK_LED_YELLOW, left_weight );
+      this->Handle_LEDUpdate( left_weight, SKRUMBLEDATA::SK_LED_YELLOW);
       break;
     case SKRUMBLEDATA::SK_FOG_ON:
       MSG_RPLC_DEBUG( "FOG ON" );
@@ -608,7 +608,7 @@ void RpiLightsController::Handle_RumbleData( uint8_t left_weight, uint8_t right_
     case SKRUMBLEDATA::SK_ALL_OFF:
       // I suspect all off includes fog & strobe.
       MSG_RPLC_DEBUG( "ALL OFF - LEDS & STROBE - " );
-      this->Handle_LEDUpdate( SKRUMBLEDATA::SK_ALL_OFF, SKRUMBLEDATA::SK_ALL_OFF );
+      this->Handle_LEDUpdate( SKRUMBLEDATA::SK_NONE, SKRUMBLEDATA::SK_ALL_OFF );
       this->Handle_StrobeUpdate( 0 );
       this->Handle_FogUpdate( false );
       break;
@@ -628,7 +628,7 @@ void RpiLightsController::Handle_RumbleData( uint8_t left_weight, uint8_t right_
 };
 
 // Colour = SK colour - From serial
-void RpiLightsController::Handle_LEDUpdate( const uint8_t colour, const uint8_t leds ) {
+void RpiLightsController::Handle_LEDUpdate( const uint8_t leds, const uint8_t colour ) {
 
   switch( colour ) {
     case SKRUMBLEDATA::SK_ALL_OFF:
